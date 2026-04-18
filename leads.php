@@ -164,20 +164,23 @@ require_once __DIR__ . '/includes/sidebar.php';
                 </thead>
                 <tbody>
                 <?php foreach ($leads as $i => $lead): ?>
-                    <tr class="clickable-row"
-                        data-lead='<?= htmlspecialchars(json_encode([
-                            'id'               => $lead['id'],
-                            'full_name'        => $lead['full_name'],
-                            'email'            => $lead['email'],
-                            'phone'            => $lead['phone'],
-                            'whatsapp'         => $lead['whatsapp'],
-                            'country'          => $lead['country'],
-                            'service_interest' => $lead['service_interest'],
-                            'lead_source'      => $lead['lead_source'],
-                            'status'           => $lead['status'],
+                    <?php $leadJson = json_encode([
+                            'id'                => $lead['id'],
+                            'full_name'         => $lead['full_name'],
+                            'email'             => $lead['email'],
+                            'phone'             => $lead['phone'],
+                            'whatsapp'          => $lead['whatsapp'],
+                            'country'           => $lead['country'],
+                            'service_interest'  => $lead['service_interest'],
+                            'lead_source'       => $lead['lead_source'],
+                            'status'            => $lead['status'],
                             'next_followup_date'=> $lead['next_followup_date'],
-                            'notes'            => $lead['notes'],
-                        ]), ENT_QUOTES) ?>'>
+                            'notes'             => $lead['notes'],
+                        ], JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS); ?>
+                    <tr class="clickable-row"
+                        data-lead="<?= htmlspecialchars($leadJson, ENT_COMPAT, 'UTF-8') ?>"
+                        style="cursor:pointer;"
+                        title="Click to view lead details">
                         <td class="text-muted fs-12"><?= $offset + $i + 1 ?></td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
@@ -239,7 +242,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             <?php if ($totalPages > 1): ?>
             <nav>
                 <ul class="pagination pagination-sm mb-0 gap-1">
-                    <?php for ($p = max(1,$currentPage-2); $p <= min($totalPages,$currentPage+2); $p++): ?>
+                    <?php for ($p = max(1, (int)$currentPage - 2); $p <= min((int)$totalPages, (int)$currentPage + 2); $p++): ?>
                         <li class="page-item <?= $p===$currentPage?'active':'' ?>">
                             <a class="page-link" style="border-radius:6px;"
                                href="?page=<?= $p ?>&q=<?= urlencode($search) ?>&status=<?= urlencode($fStatus) ?>&source=<?= urlencode($fSource) ?>&service=<?= urlencode($fService) ?>">
