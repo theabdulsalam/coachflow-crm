@@ -1,0 +1,23 @@
+# CoachFlow CRM — Apache Configuration
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "(\.env|db\.php|auth\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent direct access to includes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to includes directory
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
