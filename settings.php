@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $curr    = $_POST['current_password']  ?? '';
         $newPwd  = $_POST['new_password']       ?? '';
         $confirm = $_POST['confirm_password']   ?? '';
-        $hash    = $pdo->prepare("SELECT password FROM users WHERE id=?")->execute([$user['id']]) ? $pdo->prepare("SELECT password FROM users WHERE id=?")->execute([$user['id']]) : '';
-        $stmt    = $pdo->prepare("SELECT password FROM users WHERE id=?"); $stmt->execute([$user['id']]);
-        $currentHash = $stmt->fetchColumn();
+        $pwStmt = $pdo->prepare("SELECT password FROM users WHERE id=?");
+        $pwStmt->execute([$user['id']]);
+        $currentHash = $pwStmt->fetchColumn();
         if (!password_verify($curr, $currentHash)) {
             $flashMsg = 'Current password is incorrect.'; $flashType = 'danger';
         } elseif (strlen($newPwd) < 6) {
@@ -55,8 +55,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id=?"); $stmt->execute([$user['id']]);
-$userData = $stmt->fetch();
+$uStmt = $pdo->prepare("SELECT * FROM users WHERE id=?");
+$uStmt->execute([$user['id']]);
+$userData = $uStmt->fetch();
+
+// Fallback to session data if row not found (e.g. session/DB mismatch after reimport)
+if (!$userData) {
+    $userData = [
+        'id'         => $user['id'],
+        'name'       => $_SESSION['user_name']  ?? 'Admin',
+        'email'      => $_SESSION['user_email'] ?? '',
+        'password'   => '',
+        'created_at' => date('Y-m-d H:i:s'),
+    ];
+}
 
 $leadSources = ['Website','Instagram','Facebook','LinkedIn','YouTube','Referral','Cold Outreach','Other'];
 $services    = ['Business Coaching','Life Coaching','Executive Coaching','Career Coaching','Mindset Coaching','Health Coaching','Business Strategy','Other'];
